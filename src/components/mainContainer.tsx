@@ -22,7 +22,7 @@ export const MainContainer = () => {
   >([]);
 
   // timer (seconds) and finished state
-  const [timeLeft, setTimeLeft] = useState(1 * 60); // 1 hour example
+  const [timeLeft, setTimeLeft] = useState(1 * 60 * 60); // 1 hour example
   const [finished, setFinished] = useState(false);
 
   const goNext = () => {

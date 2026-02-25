@@ -1,4 +1,4 @@
-export const data = {
+export const questionData = {
   "role": "Frontend Engineer (React)",
   "questions": [
     { "id": 1, "topic": "HTML", "type": "text", "question": "What is semantic HTML and why is it important?" },

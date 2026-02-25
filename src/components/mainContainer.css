@@ -1,0 +1,6 @@
+.main-container {
+    width: 800px;
+    height: 500px;
+    border: 1px solid red;
+    background-color: rgb(225, 214, 230);
+}

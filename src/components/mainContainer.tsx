@@ -23,6 +23,7 @@ export const MainContainer = () => {
 
   // timer (seconds) and finished state
   const [timeLeft, setTimeLeft] = useState(1 * 60 * 60); // 1 hour example
+  const [running, setRunning] = useState(true); // true when countdown is active
   const [finished, setFinished] = useState(false);
 
   const goNext = () => {
@@ -64,6 +65,7 @@ export const MainContainer = () => {
 
   // countdown timer effect
   useEffect(() => {
+    if (!running) return; // paused
     if (timeLeft <= 0) {
       setFinished(true);
       return;
@@ -72,7 +74,7 @@ export const MainContainer = () => {
       setTimeLeft((t) => t - 1);
     }, 1000);
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, [timeLeft, running]);
 
   if (finished) {
     return <ThankYou responses={responses} />;
@@ -81,8 +83,14 @@ export const MainContainer = () => {
   return (
     <>
       <div className="timer">
-        Time: {Math.floor(timeLeft / 60)}:
-        {String(timeLeft % 60).padStart(2, "0")}
+        Time: {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, "0")}
+        <button
+          type="button"
+          className="timer-toggle"
+          onClick={() => setRunning((r) => !r)}
+        >
+          {running ? "Pause" : "Resume"}
+        </button>
       </div>
 
       <form className="main-container" onSubmit={handleSubmit(onSubmit)}>
@@ -91,6 +99,11 @@ export const MainContainer = () => {
           question={currentQuestion}
           register={register}
           disabled={lockedIds.has(currentQuestion.id)}
+          multi={
+            currentQuestion.type === "msq" &&
+            Array.isArray(currentQuestion.answer) &&
+            currentQuestion.answer.length > 1
+          }
         />
         <div className="debug">
           <small>
@@ -142,7 +155,7 @@ const QuestionContainer = ({ question }: QProps) => {
 
   return (
     <div className="question-container">
-      <h2 className="question-text">{question.question}</h2>
+      <h2 className="question-text"> Q.{question.id} - {question.question}</h2>
     </div>
   );
 };
@@ -151,9 +164,10 @@ interface AProps {
   question: any;
   register?: any;
   disabled?: boolean;
+  multi?: boolean;
 }
 
-const AnswerContainer = ({ question, register, disabled }: AProps) => {
+const AnswerContainer = ({ question, register, disabled, multi }: AProps) => {
   if (!question) return null;
   const name = `q${question.id}`;
 
@@ -171,13 +185,13 @@ const AnswerContainer = ({ question, register, disabled }: AProps) => {
           options={question.options || []}
           register={register}
           name={name}
-          multiple={false}
+          multiple={!!multi}
           disabled={disabled}
         />
       ) : (
         <RadioQuestion
           options={question.options || []}
-          multiple={false}
+          multiple={!!multi}
           disabled={disabled}
         />
       );
